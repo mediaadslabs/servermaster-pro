@@ -1,0 +1,381 @@
+<html><head><base href="/" />
+<title>ServerMaster Pro - Open Source Edition</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.header {
+    background: linear-gradient(to bottom, #2584e8 0%, #1666b5 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px 8px 0 0;
+}
+
+.header h2 {
+    margin-bottom: 5px;
+}
+
+.header p {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.copyright {
+    font-size: 11px;
+    text-align: center;
+    padding: 10px;
+    background: #e0e0e0;
+    border-radius: 0 0 8px 8px;
+}
+
+.server-list {
+    padding: 15px;
+}
+
+.server-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.server-item:hover {
+    background: #e8f0fe;
+}
+
+.server-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    background: #1666b5;
+    border-radius: 50%;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-left: auto;
+    background: #ff4444;
+}
+
+.controls {
+    padding: 15px;
+    background: #e8e8e8;
+    border-top: 1px solid #ddd;
+}
+
+.button {
+    padding: 8px 15px;
+    background: linear-gradient(to bottom, #f8f8f8 0%, #e8e8e8 100%);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.button:hover {
+    background: linear-gradient(to bottom, #e8e8e8 0%, #d8d8d8 100%);
+}
+
+.settings-panel {
+    display: none;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.settings-row {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f8f8;
+    border-radius: 4px;
+}
+
+.settings-row label {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+}
+
+.settings-row input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 200px;
+}
+
+.server-details {
+    display: none;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.log-viewer {
+    background: #1a1a1a;
+    color: #00ff00;
+    padding: 10px;
+    font-family: monospace;
+    height: 100px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>ServerMaster Pro</h2>
+        <p>Open Source Edition</p>
+    </div>
+    
+    <div class="server-list">
+        <div class="server-item" data-port="22" data-type="ssh">
+            <div class="server-icon"></div>
+            <span>SSH Server</span>
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div class="server-item" data-port="21" data-type="ftp">
+            <div class="server-icon"></div>
+            <span>FTP Server</span>
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div class="server-item" data-port="53" data-type="dns">
+            <div class="server-icon"></div>
+            <span>DNS Server</span>
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div class="server-item" data-port="25" data-type="smtp">
+            <div class="server-icon"></div>
+            <span>SMTP Server</span>
+            <div class="status-indicator"></div>
+        </div>
+    </div>
+
+    <div class="server-details">
+        <h3 id="server-detail-title">Server Details</h3>
+        <div class="settings-row">
+            <label>Port:</label>
+            <input type="number" id="port-setting">
+        </div>
+        <div class="settings-row">
+            <label>Max Connections:</label>
+            <input type="number" id="max-connections">
+        </div>
+        <div class="log-viewer" id="server-logs">
+        </div>
+    </div>
+    
+    <div class="settings-panel">
+        <div class="settings-row">
+            <label>Global Timeout:</label>
+            <input type="number" id="global-timeout" value="30"> seconds
+        </div>
+        <div class="settings-row">
+            <label>Log Level:</label>
+            <select id="log-level">
+                <option value="ERROR">Error</option>
+                <option value="WARN">Warning</option>
+                <option value="INFO">Info</option>
+                <option value="DEBUG">Debug</option>
+            </select>
+        </div>
+        <div class="settings-row">
+            <label>Authentication:</label>
+            <input type="checkbox" id="require-auth" checked> Require Authentication
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="button" id="start-all">Start All</button>
+        <button class="button" id="stop-all">Stop All</button>
+        <button class="button" id="settings">Settings</button>
+    </div>
+
+    <div class="copyright">
+        ServerMaster Pro - Open Source Edition © 2023 Helder da Silveira Ventura<br>
+        Licensed under GNU General Public License v3.0 (GPLv3)<br>
+        <a href="https://github.com/helderventura/servermaster-pro" style="color: #1666b5; text-decoration: none;">View on GitHub</a>
+    </div>
+</div>
+
+<script>
+const servers = {
+    ssh: { port: 22, maxConnections: 10, running: false },
+    ftp: { port: 21, maxConnections: 20, running: false },
+    dns: { port: 53, maxConnections: 50, running: false },
+    smtp: { port: 25, maxConnections: 15, running: false }
+};
+
+function log(serverType, message) {
+    const logViewer = document.getElementById('server-logs');
+    const timestamp = new Date().toLocaleTimeString();
+    logViewer.innerHTML += `[${timestamp}] ${serverType.toUpperCase()}: ${message}\n`;
+    logViewer.scrollTop = logViewer.scrollHeight;
+}
+
+function startServer(serverType) {
+    try {
+        const server = servers[serverType];
+        if (!server.running) {
+            server.running = true;
+            log(serverType, `Server started on port ${server.port}`);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        log(serverType, `Error starting server: ${error.message}`);
+        return false;
+    }
+}
+
+function stopServer(serverType) {
+    try {
+        const server = servers[serverType];
+        if (server.running) {
+            server.running = false;
+            log(serverType, 'Server stopped');
+            return true;
+        }
+        return false;
+    } catch (error) {
+        log(serverType, `Error stopping server: ${error.message}`);
+        return false;
+    }
+}
+
+document.querySelectorAll('.server-item').forEach(item => {
+    item.addEventListener('click', () => {
+        try {
+            const serverType = item.dataset.type;
+            const indicator = item.querySelector('.status-indicator');
+            const detailsPanel = document.querySelector('.server-details');
+            const serverDetailTitle = document.getElementById('server-detail-title');
+            const portSetting = document.getElementById('port-setting');
+            const maxConnections = document.getElementById('max-connections');
+
+            if (!servers[serverType].running) {
+                if (startServer(serverType)) {
+                    indicator.style.background = '#4CAF50';
+                }
+            } else {
+                if (stopServer(serverType)) {
+                    indicator.style.background = '#ff4444';
+                }
+            }
+
+            serverDetailTitle.textContent = `${serverType.toUpperCase()} Server Details`;
+            portSetting.value = servers[serverType].port;
+            maxConnections.value = servers[serverType].maxConnections;
+            detailsPanel.style.display = 'block';
+            document.querySelector('.settings-panel').style.display = 'none';
+        } catch (error) {
+            console.error('Error in server item click handler:', error);
+        }
+    });
+});
+
+document.getElementById('start-all').addEventListener('click', () => {
+    try {
+        document.querySelectorAll('.server-item').forEach(item => {
+            const serverType = item.dataset.type;
+            const indicator = item.querySelector('.status-indicator');
+            if (startServer(serverType)) {
+                indicator.style.background = '#4CAF50';
+            }
+        });
+    } catch (error) {
+        console.error('Error in start all handler:', error);
+    }
+});
+
+document.getElementById('stop-all').addEventListener('click', () => {
+    try {
+        document.querySelectorAll('.server-item').forEach(item => {
+            const serverType = item.dataset.type;
+            const indicator = item.querySelector('.status-indicator');
+            if (stopServer(serverType)) {
+                indicator.style.background = '#ff4444';
+            }
+        });
+    } catch (error) {
+        console.error('Error in stop all handler:', error);
+    }
+});
+
+document.getElementById('settings').addEventListener('click', () => {
+    try {
+        const settingsPanel = document.querySelector('.settings-panel');
+        const detailsPanel = document.querySelector('.server-details');
+        settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
+        detailsPanel.style.display = 'none';
+    } catch (error) {
+        console.error('Error in settings handler:', error);
+    }
+});
+
+document.getElementById('port-setting').addEventListener('change', (e) => {
+    try {
+        const serverType = document.getElementById('server-detail-title').textContent.split(' ')[0].toLowerCase();
+        const newPort = parseInt(e.target.value);
+        if (newPort > 0 && newPort < 65536) {
+            servers[serverType].port = newPort;
+            log(serverType, `Port changed to ${newPort}`);
+        } else {
+            log(serverType, 'Invalid port number');
+            e.target.value = servers[serverType].port;
+        }
+    } catch (error) {
+        console.error('Error in port setting handler:', error);
+    }
+});
+
+document.getElementById('max-connections').addEventListener('change', (e) => {
+    try {
+        const serverType = document.getElementById('server-detail-title').textContent.split(' ')[0].toLowerCase();
+        const newMaxConnections = parseInt(e.target.value);
+        if (newMaxConnections > 0) {
+            servers[serverType].maxConnections = newMaxConnections;
+            log(serverType, `Max connections changed to ${newMaxConnections}`);
+        } else {
+            log(serverType, 'Invalid max connections value');
+            e.target.value = servers[serverType].maxConnections;
+        }
+    } catch (error) {
+        console.error('Error in max connections handler:', error);
+    }
+});
+
+// Initialize servers
+try {
+    Object.keys(servers).forEach(serverType => {
+        log(serverType, 'Server initialized');
+    });
+} catch (error) {
+    console.error('Error during initialization:', error);
+}
+</script>
+</body></html>
